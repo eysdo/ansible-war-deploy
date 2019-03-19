@@ -1,4 +1,4 @@
 warName:  hello.war  
 warDir: hello
-warLocalPath: /etc/ansible/roles/webServers1/files
+warLocalPath: /etc/ansible/roles/files  
 warRemotePath: /opt/hello/webapps
