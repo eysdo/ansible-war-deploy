@@ -1,5 +1,5 @@
 - name: deploy tomcat war   
   hosts: webServers1  
   vars:  
-  - include: vars/vars
+  - include: /etc/ansible/roles/webServers1/vars/vars
   
