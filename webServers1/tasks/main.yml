@@ -4,14 +4,25 @@
   - include: /etc/ansible/roles/webServers1/vars/vars  
   tasks:  
   - name: backup old war    
-    shell: cp {{ warRemotePath }}/{{ warName }} {{ warRemotePath }}/{{ warName }}$(date +"%Y%m%d%H%M%S") 
+    shell: cp {{ warRemotePath }}/{{ warName }} {{ warRemotePath }}/{{ warName }}$(date +"%Y%m%d%H%M%S")  
+  - name: shutdown tomcat  
+    shell: chdir={{ tomcatHome }}/bin ./shutdown.sh && sleep 3
+  - name: tomcat down status  
+    shell: curl -I http://{{ serverAddress }} &>/dev/null && echo NO || echo YES  
+    ignore_errors: True  
+    register: isDown
   - name: del old war and dir
     shell: rm -f {{ warRemotePath }}/{{ warName }} && rm -rf {{ warRemotePath }}/{{ warDir }}
+    when: isDown.stdout == "YES"  
   - name: rsync war to server  
     synchronize: src={{ warLocalPath }}/{{ warName }} dest={{ warRemotePath }}/{{ warName }}  
-  - name: Unzip WAR file
-    unarchive: src={{ warRemotePath }}/{{ warName }} dest={{ warRemotePath }}/ copy=no mode=0755 owner=tomcat group=tomcat
-    notify:
-        - Restart tomcat
-  handlers:  
-  - include: /etc/ansible/roles/webServers1/handlers/main.yml
+  - name: start tomcat  
+    shell: chdir={{ tomcatHome }}/bin nohup ./startup.sh &
+  - name: sleep 40s
+    shell: sleep 40  
+  - name: tomcat up status
+    shell: curl -I http://{{ serverAddress }} &>/dev/null && echo YES || echo NO  
+    ignore_errors: True  
+    register: isUp
+  - name: show debug info
+    debug: var=isUp verbosity=0
