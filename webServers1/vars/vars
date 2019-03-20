@@ -1,4 +1,6 @@
-warName:  hello.war  
+tomcatHome: /opt/hello 
+warName: hello.war  
 warDir: hello
 warLocalPath: /etc/ansible/roles/files  
 warRemotePath: /opt/hello/webapps
+serverAddress: 127.0.0.1:8081
